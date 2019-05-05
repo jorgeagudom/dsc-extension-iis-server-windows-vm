@@ -1,5 +1,5 @@
 # lb-dsc-extension-iis-server-windows-vm
-Desplegar en Azure mediante un Script de PowerShell un Grupo de Disponibilidad que ogrece un Servicio Web cuya carga distribute un Balanceador de Carga. 
+Desplegar en Azure mediante un Script de PowerShell un Grupo de Disponibilidad que ofrece un Servicio Web cuya carga distribute un Balanceador de Carga. 
 
 El propio script llama a un DSC para llevar a cabo la instalacion de el IIS personalizado para cada VM.
 
