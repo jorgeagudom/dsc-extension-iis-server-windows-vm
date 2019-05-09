@@ -129,7 +129,10 @@ $lb = New-AzLoadBalancer `
   -LoadBalancingRule $lbrule `
   -InboundNatRule $natrule1,$natrule2
 
-
+# Creación de Recursos de Red:
+# ------------------------------------------
+#
+# Creamos una VirtualNet con una SvbVNet:
 
 Write-Host "Creando VNET y SubVNET" -ForegroundColor Black -BackgroundColor Yellow
 
@@ -144,9 +147,9 @@ $vnet = New-AzVirtualNetwork `
   -AddressPrefix 192.168.0.0/16 `
   -Subnet $subnetConfig
 
-#/////////////////////////////
-#/////////////////////////////
-#/////////////////////////////
+# CREACIÓN NSG y las Reglas:
+# --------------------------
+# --------------------------
 
 # Create a "NSG Rule" for port 3389:
 # ---------------------------------------------------
@@ -178,17 +181,14 @@ $rule2 = New-AzNetworkSecurityRuleConfig `
 -DestinationAddressPrefix * `
 -DestinationPortRange 80
 
+# Creación NSG:
+# ----------------
 
 $nsg = New-AzNetworkSecurityGroup `
 -ResourceGroupName $ResourceGroupName `
 -Location $Location `
 -Name 'myNetworkSecurityGroup' `
 -SecurityRules $rule1,$rule2
-
-#/////////////////////////////
-#/////////////////////////////
-#/////////////////////////////
-
   
 # Creación de un sondeo de estado:
 #--------------------------------
@@ -220,20 +220,6 @@ $nsg = New-AzNetworkSecurityGroup `
 #
 # Creamos una regla para el LB que equilibra el tráfico en el puerto TCP 80:
 
-
-
-
-
-# actualizamos el equilibrador de carga:
-
-
-# Creación de Recursos de Red:
-# ------------------------------------------
-#
-# Creamos una VirtualNet con una SvbVNet:
-
-
-
 # Creamos las NIC virtuales para las próximas VMs:
 
 Write-Host "Creando NICs para las VMs del LB" -ForegroundColor Black -BackgroundColor Yellow
@@ -249,7 +235,6 @@ $nicVM1 = New-AzNetworkInterface `
     -Subnet $vnet.Subnets[0] `
     -LoadBalancerBackendAddressPool $lb.BackendAddressPools[0]
 
-
 $b=2
 
 $nicVM2 = New-AzNetworkInterface `
@@ -260,21 +245,7 @@ $nicVM2 = New-AzNetworkInterface `
     -LoadBalancerInboundNatRule $NATrule2 `
     -Subnet $vnet.Subnets[0] `
     -LoadBalancerBackendAddressPool $lb.BackendAddressPools[0]
-# 
 
-# for ($i=1; $i -le 2; $i++)
-# {
-#    if($i == 1){$NATrule = $NATrule1}else{$NATrule = $NATrule2}
-  
-  #  New-AzNetworkInterface `
-    #  -ResourceGroupName $ResourceGroupName `
-    #  -Name "$vmName$i" `
-    #  -Location $Location `
-    #  -NetworkSecurityGroup $nsg `
-    #  -LoadBalancerInboundNatRule $natrule1 `
-    #  -Subnet $vnet.Subnets[0] `
-    #  -LoadBalancerBackendAddressPool $lb.BackendAddressPools[0] # -LoadBalancerBackendAddressPool $backendPool `
-# }
 
 # Creación de Máquinas Virtuales (AvailabilitySet):
 # --------------------------------------------------
@@ -301,15 +272,7 @@ for ($i=1; $i -le 2; $i++)
 {
     Write-Host "Creando VM$i ..." -ForegroundColor Black -BackgroundColor Yellow   
     $vmNameNum = $vmName + $i
-    #$VNETnameNum = $VNETname + $i
-    #$SubNETnameNum = $SubNETname + $i
-    #$PublicIpAddressNameNum = $PublicIpAddressName + $i
- 
-    # Instalamos el servidor web de IIS y después actualiza la página 
-    # Default.htm para mostrar el nombre de host de la máquina virtual:
-
-    #####->   $PublicSettings = '{"ModulesURL":"https://github.com/jorgeagudom/lb-dsc-extension-iis-server-windows-vm/raw/master/DSC_IIS_personalizado.ps1.zip", "configurationFunction": "DSC_IIS_personalizado.ps1\\MatIIS", "Properties": {"vmName": '+'"'+$vmNameNum+'"'+'} }'
-
+   
     New-AzVm `
         -ResourceGroupName $ResourceGroupName `
         -Name $vmNameNum `
@@ -325,18 +288,5 @@ for ($i=1; $i -le 2; $i++)
         -AsJob
 
    Write-Host "Creando VM$i ...revisa estado en el portal" -ForegroundColor Black -BackgroundColor Yellow
-# 
-  #  Write-Host "Instalando IIS con DSC en VM$i..." -ForegroundColor Black -BackgroundColor Yellow
-   
-  #  Set-AzVMExtension `
-  #    -ExtensionName "DSC" `
-  #    -ResourceGroupName $ResourceGroupName `
-  #    -VMName $vmNameNum `
-  #    -Publisher "Microsoft.Powershell" `
-  #    -ExtensionType "DSC" `
-  #    -TypeHandlerVersion 2.7 `
-    #  -SettingString $PublicSettings `
-    #  -Location $Location 
 
-   # Write-Host "Servidor IIS instalado en VM$i con éxito!!" -ForegroundColor Black -BackgroundColor Yellow
 }
